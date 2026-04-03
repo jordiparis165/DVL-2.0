@@ -14,6 +14,7 @@ function usersRoutes(app) {
     }
 
     const user = await User.findOne({ validationToken: token })
+      .select('+validationToken')
 
     if (!user) {
       return reply.status(404).send({ error: 'Token de validation invalide ou expire' })

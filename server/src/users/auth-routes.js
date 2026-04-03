@@ -2,11 +2,40 @@ import { randomBytes } from 'node:crypto'
 
 import config from '../config.js'
 import { sendRegistrationEmail } from '../services/mailer.js'
-import { hashPassword, verifyPassword } from '../utils/crypto.js'
+import { hashPassword, needsPasswordRehash, verifyPassword } from '../utils/crypto.js'
 import publicUserFields from './public-user-fields.js'
 import User from './user-schema.js'
 
 const emailRegex = /^(?:[^<>()[\]\\.,;:\s@"]+(?:\.[^<>()[\]\\.,;:\s@"]+)*|".+")@(?:\[\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\]|(?:[a-z\-0-9]+\.)+[a-z]{2,})$/i
+const passwordMinLength = 12
+const lowercaseRegex = /[a-z]/
+const uppercaseRegex = /[A-Z]/
+const digitRegex = /\d/
+const specialCharacterRegex = /[^a-z0-9]/i
+
+function getPasswordValidationError(password) {
+  if (typeof password !== 'string' || password.length < passwordMinLength) {
+    return `Le mot de passe doit contenir au moins ${passwordMinLength} caracteres`
+  }
+
+  if (!lowercaseRegex.test(password)) {
+    return 'Le mot de passe doit contenir au moins une minuscule'
+  }
+
+  if (!uppercaseRegex.test(password)) {
+    return 'Le mot de passe doit contenir au moins une majuscule'
+  }
+
+  if (!digitRegex.test(password)) {
+    return 'Le mot de passe doit contenir au moins un chiffre'
+  }
+
+  if (!specialCharacterRegex.test(password)) {
+    return 'Le mot de passe doit contenir au moins un caractere special'
+  }
+
+  return null
+}
 
 function buildVerificationUrl(validationToken) {
   return `${config.frontBaseUrl}/verify-email?token=${validationToken}`
@@ -57,15 +86,26 @@ function authRoutes(app) {
     }
 
     const normalizedEmail = email.trim().toLowerCase()
+    const normalizedUsername = username.trim()
 
     if (!emailRegex.test(normalizedEmail)) {
       return reply.status(400).send({ error: 'Email invalide' })
     }
 
+    if (normalizedUsername.length < 3) {
+      return reply.status(400).send({ error: 'Le username doit contenir au moins 3 caracteres' })
+    }
+
+    const passwordValidationError = getPasswordValidationError(password)
+
+    if (passwordValidationError) {
+      return reply.status(400).send({ error: passwordValidationError })
+    }
+
     const existingUser = await User.findOne({
       $or: [
         { email: normalizedEmail },
-        { username: username.trim() },
+        { username: normalizedUsername },
       ],
     }).lean()
 
@@ -73,7 +113,7 @@ function authRoutes(app) {
       return reply.status(409).send({ error: 'Cet email est deja utilise' })
     }
 
-    if (existingUser?.username === username.trim()) {
+    if (existingUser?.username === normalizedUsername) {
       return reply.status(409).send({ error: 'Ce username est deja utilise' })
     }
 
@@ -82,7 +122,7 @@ function authRoutes(app) {
 
     const user = await User.create({
       email: normalizedEmail,
-      username: username.trim(),
+      username: normalizedUsername,
       passwordHash,
       validationToken,
     })
@@ -121,6 +161,7 @@ function authRoutes(app) {
     }
 
     const user = await User.findOne({ email: normalizedEmail })
+      .select('+validationToken')
 
     if (!user) {
       return reply.status(404).send({ error: 'Utilisateur introuvable' })
@@ -163,6 +204,7 @@ function authRoutes(app) {
 
     const normalizedEmail = email.trim().toLowerCase()
     const user = await User.findOne({ email: normalizedEmail })
+      .select('+passwordHash')
 
     if (!user) {
       return reply.status(401).send({ error: 'Identifiants invalides' })
@@ -172,6 +214,11 @@ function authRoutes(app) {
 
     if (!passwordMatches) {
       return reply.status(401).send({ error: 'Identifiants invalides' })
+    }
+
+    if (needsPasswordRehash(user.passwordHash)) {
+      user.passwordHash = await hashPassword(password)
+      await user.save()
     }
 
     if (!user.emailVerified) {

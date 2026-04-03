@@ -73,7 +73,7 @@ test('opens the demo dashboard from login and filters courses', async ({ page })
   await expect(page.getByText('Feedback smart contract disponible')).toBeVisible()
 
   await page.getByRole('link', { name: 'Calendrier' }).click()
-  await page.getByTestId('calendar-entry').first().getByRole('link').click()
+  await page.getByTestId('calendar-entry').first().click()
   await expect(
     page.getByRole('heading', { name: /Advanced Probability|Blockchain Programming|Point projet equipe|Machine Learning|Project Methodology|Public-key Cryptography|Rust Programming/, level: 1 }),
   ).toBeVisible()

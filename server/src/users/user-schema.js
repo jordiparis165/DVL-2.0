@@ -7,15 +7,19 @@ const userSchema = new Schema({
     type: String,
     required: true,
     unique: true,
+    trim: true,
+    lowercase: true,
   },
   username: {
     type: String,
     required: true,
     unique: true,
+    trim: true,
   },
   passwordHash: {
     type: String,
     required: true,
+    select: false,
   },
   emailVerified: {
     type: Boolean,
@@ -24,6 +28,7 @@ const userSchema = new Schema({
   validationToken: {
     type: String,
     default: null,
+    select: false,
   },
 }, {
   timestamps: true,

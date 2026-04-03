@@ -10,6 +10,9 @@ export default {
     secret: process.env.JWT_SECRET || 'change-me-in-production',
     cookieName: process.env.JWT_COOKIE_NAME || 'token',
   },
+  security: {
+    bcryptSaltRounds: Number(process.env.BCRYPT_SALT_ROUNDS || 12),
+  },
   mail: {
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT || 587),
