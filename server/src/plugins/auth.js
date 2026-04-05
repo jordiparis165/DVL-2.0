@@ -39,6 +39,12 @@ async function authPlugin(app) {
 
     request.currentUser = user
   })
+
+  app.decorate('authorizeAdmin', async (request, reply) => {
+    if ((request.currentUser?.role ?? 'student') !== 'admin') {
+      return reply.status(403).send({ error: 'Acces reserve aux administrateurs' })
+    }
+  })
 }
 
 export default fp(authPlugin)

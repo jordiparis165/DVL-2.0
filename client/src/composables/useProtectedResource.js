@@ -41,10 +41,25 @@ export function useProtectedResource(options) {
         return
       }
 
+      if (options.requiredRole && auth.user?.role !== options.requiredRole) {
+        if (options.forbiddenRedirect) {
+          await router.replace(options.forbiddenRedirect)
+          return
+        }
+
+        errorMessage.value = options.forbiddenMessage ?? 'Acces refuse'
+        return
+      }
+
       data.value = await options.loader()
     } catch (error) {
       if (error.status === 401) {
         await router.replace('/login')
+        return
+      }
+
+      if (error.status === 403 && options.forbiddenRedirect) {
+        await router.replace(options.forbiddenRedirect)
         return
       }
 

@@ -554,6 +554,7 @@ function buildStudentProfile(user) {
     program: 'MS FinTech',
     cohort: 'Promotion 2026',
     email: user.email,
+    role: user.role ?? 'student',
     campus: 'La Defense',
     status: 'Etudiant actif',
     joinedAt: new Date('2025-09-15T09:00:00+02:00'),
@@ -689,6 +690,36 @@ function hydrateGrades(grades) {
     status: item.status,
     returnedAt: item.returnedAt,
   }))
+}
+
+function buildCourseQuickSummary(course, relatedEntries, relatedAnnouncements) {
+  const progressTone = course.progress >= 70
+    ? 'Tu es en avance sur ce module.'
+    : course.progress >= 40
+      ? 'Le module est sous controle, mais il faut garder le rythme.'
+      : 'Le module demande une relance rapide cette semaine.'
+
+  const priorityTone = course.urgent
+    ? `Point chaud: ${course.deliverable}.`
+    : `Priorite actuelle: ${course.deliverable}.`
+
+  const sessionTone = relatedEntries[0]
+    ? `Prochaine seance: ${relatedEntries[0].time} en ${relatedEntries[0].detail}.`
+    : `Aucune seance planifiee a court terme pour l'instant.`
+
+  const alertTone = relatedAnnouncements[0]
+    ? `A surveiller: ${relatedAnnouncements[0].title}.`
+    : 'Aucune alerte specifique remontee pour ce cours.'
+
+  return {
+    headline: `${course.title} en 30 secondes`,
+    bullets: [
+      progressTone,
+      priorityTone,
+      sessionTone,
+      alertTone,
+    ],
+  }
 }
 
 function computeCourseAverage(entries) {
@@ -958,6 +989,7 @@ export async function getCourseDetailData(user, code) {
   return {
     student: buildStudentProfile(user),
     course,
+    quickSummary: buildCourseQuickSummary(course, relatedEntries, relatedAnnouncements),
     relatedEntries,
     relatedAnnouncements,
   }

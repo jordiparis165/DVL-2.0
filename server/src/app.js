@@ -12,6 +12,7 @@ import usersRoutes from './users/users-routes.js'
 async function buildApp() {
   const fastify = Fastify({
     logger: envToLogger[config.env] ?? true,
+    pluginTimeout: config.fastify.pluginTimeoutMs,
   })
 
   await fastify.register(authPlugin)

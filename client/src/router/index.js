@@ -10,6 +10,7 @@ import CalendarView from '../views/CalendarView.vue'
 import CourseDetailView from '../views/CourseDetailView.vue'
 import CoursesView from '../views/CoursesView.vue'
 import DashboardView from '../views/DashboardView.vue'
+import ForbiddenView from '../views/ForbiddenView.vue'
 import GradeDetailView from '../views/GradeDetailView.vue'
 import GradesView from '../views/GradesView.vue'
 import LoginView from '../views/LoginView.vue'
@@ -45,6 +46,11 @@ const router = createRouter({
       path: '/dashboard',
       name: 'dashboard',
       component: DashboardView,
+    },
+    {
+      path: '/forbidden',
+      name: 'forbidden',
+      component: ForbiddenView,
     },
     {
       path: '/courses',

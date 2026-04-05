@@ -34,6 +34,10 @@ const navigation = [
   { label: 'Admin', to: '/admin' },
 ]
 
+const visibleNavigation = computed(() =>
+  navigation.filter(item => item.to !== '/admin' || props.mode === 'demo' || props.student.role === 'admin'),
+)
+
 function isActive(target) {
   return route.path === target || route.path.startsWith(`${target}/`)
 }
@@ -61,7 +65,7 @@ function profileLocation() {
 
     <nav class="nav-links" aria-label="Navigation principale">
       <RouterLink
-        v-for="item in navigation"
+        v-for="item in visibleNavigation"
         :key="item.to"
         class="nav-link"
         :class="{ active: isActive(item.to) }"

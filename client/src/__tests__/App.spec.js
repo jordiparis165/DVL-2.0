@@ -5,6 +5,7 @@ import { createPinia } from 'pinia'
 
 import App from '../App.vue'
 import router from '../router/index.js'
+import { demoOverview } from '../services/dashboard.js'
 
 describe('App', () => {
   beforeEach(() => {
@@ -71,6 +72,58 @@ describe('App', () => {
     expect(wrapper.text()).toContain('Bonjour, Jordi')
     expect(wrapper.findAll('[data-testid="course-card"]')).toHaveLength(1)
     expect(wrapper.text()).toContain('Rust Programming')
+  })
+
+  it('hides the admin navigation for a student session', async () => {
+    const studentOverview = JSON.parse(JSON.stringify(demoOverview))
+    studentOverview.student.role = 'student'
+
+    vi.stubGlobal('fetch', vi.fn(async (input) => {
+      const url = typeof input === 'string' ? input : input.url
+
+      if (url.endsWith('/auth/session')) {
+        return new Response(
+          JSON.stringify({
+            user: {
+              _id: 'student-1',
+              email: 'student@example.com',
+              emailVerified: true,
+              role: 'student',
+              username: 'Jordi',
+            },
+          }),
+          {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          },
+        )
+      }
+
+      if (url.endsWith('/dashboard/overview')) {
+        return new Response(JSON.stringify(studentOverview), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }
+
+      return new Response(JSON.stringify({ error: 'Not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }))
+
+    await router.push('/dashboard')
+    await router.isReady()
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [createPinia(), router],
+      },
+    })
+
+    await flushPromises()
+
+    expect(wrapper.find('a[href="/admin"]').exists()).toBe(false)
   })
 
   it('renders the calendar view in demo mode', async () => {
@@ -162,6 +215,8 @@ describe('App', () => {
     expect(wrapper.text()).toContain('Blockchain Programming')
     expect(wrapper.text()).toContain('Mar 10:15')
     expect(wrapper.text()).toContain('Feedback smart contract disponible')
+    expect(wrapper.text()).toContain('Chaque cours en 30 secondes')
+    expect(wrapper.text()).toContain('Priorite actuelle: TP smart contract feedback.')
   })
 
   it('renders the grade detail page in demo mode', async () => {
@@ -317,6 +372,24 @@ describe('App', () => {
     expect(wrapper.text()).toContain('Jordi')
     expect(wrapper.text()).toContain('Profil etudiant')
     expect(wrapper.text()).toContain('Cours a garder en vue')
+  })
+
+  it('renders the forbidden view', async () => {
+    vi.stubGlobal('fetch', vi.fn())
+
+    await router.push('/forbidden')
+    await router.isReady()
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [createPinia(), router],
+      },
+    })
+
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Acces refuse')
+    expect(wrapper.text()).toContain('Retour au dashboard')
   })
 
   it('renders the admin view in demo mode', async () => {

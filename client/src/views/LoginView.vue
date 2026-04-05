@@ -34,6 +34,11 @@ async function submitLogin() {
     await auth.login(form)
     await router.push('/dashboard')
   } catch (error) {
+    if (error.status === 429) {
+      errorMessage.value = 'Trop de tentatives. Attends un peu avant de reessayer.'
+      return
+    }
+
     errorMessage.value = error.message
   } finally {
     pending.value = false

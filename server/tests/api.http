@@ -1,6 +1,6 @@
 @baseUrl = http://localhost:3000
 @email = stan@stormier.net
-@password = password123
+@password = Password123!
 @username = testuser
 
 ###
@@ -16,7 +16,7 @@ Content-Type: application/json
 }
 
 ###
-# Renvoi de l'email de validation
+# Renvoi de l email de validation
 # @name resendEmail
 POST {{baseUrl}}/auth/resend-verification-email
 Content-Type: application/json
@@ -26,12 +26,12 @@ Content-Type: application/json
 }
 
 ###
-# Validation de l'email via la réponse de resend-verification-email
+# Validation de l email via la reponse de resend-verification-email
 GET {{resendEmail.response.body.verificationUrl}}
 
 ###
 # Connexion
-# Le cookie JWT retourné par la réponse peut être réutilisé par le client HTTP de VS Code / IntelliJ.
+# Le cookie JWT retourne par la reponse peut etre reutilise par le client HTTP de VS Code / IntelliJ.
 # @name login
 POST {{baseUrl}}/auth/login
 Content-Type: application/json
@@ -42,12 +42,12 @@ Content-Type: application/json
 }
 
 ###
-# Profil courant avec le cookie JWT de la requête login
+# Profil courant avec le cookie JWT de la requete login
 # @name me
 GET {{baseUrl}}/users/me
 
 ###
-# Cas d'erreur: tentative de connexion avant validation de l'email
+# Cas d erreur: tentative de connexion avant validation de l email
 POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
@@ -57,5 +57,15 @@ Content-Type: application/json
 }
 
 ###
-# Cas d'erreur: accès protégé sans cookie JWT
+# Cas d erreur: acces protege sans cookie JWT
 GET {{baseUrl}}/users/me
+
+###
+# Cas d erreur: trop de tentatives de connexion
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "BadPassword123!"
+}

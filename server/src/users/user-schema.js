@@ -25,6 +25,11 @@ const userSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  role: {
+    type: String,
+    enum: ['student', 'admin'],
+    default: 'student',
+  },
   validationToken: {
     type: String,
     default: null,

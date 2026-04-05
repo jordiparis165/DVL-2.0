@@ -101,6 +101,29 @@ function announcementLocation(slug) {
       </section>
 
       <div class="content-grid">
+        <section class="panel summary-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">
+                Resume IA
+              </p>
+              <h2>Chaque cours en 30 secondes</h2>
+            </div>
+          </div>
+
+          <div class="summary-card">
+            <strong>{{ payload.quickSummary?.headline ?? `${payload.course.title} en 30 secondes` }}</strong>
+            <ul class="summary-list">
+              <li
+                v-for="bullet in payload.quickSummary?.bullets ?? []"
+                :key="bullet"
+              >
+                {{ bullet }}
+              </li>
+            </ul>
+          </div>
+        </section>
+
         <section class="panel">
           <div class="section-heading">
             <div>
@@ -168,6 +191,10 @@ h1 { font-size: clamp(2.2rem, 5vw, 4rem); }
 .meta-grid div { min-width: 160px; padding: 16px; border-radius: 20px; background: #f8fafc; }
 .meta-grid span { display: block; color: #64748b; margin-bottom: 4px; }
 .content-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr); gap: 20px; }
+.summary-panel { grid-column: 1 / -1; }
+.summary-card { padding: 20px; border-radius: 24px; background: linear-gradient(135deg, rgba(255,247,237,0.9), rgba(255,255,255,0.92)); box-shadow: inset 0 0 0 1px rgba(245,158,11,0.12); }
+.summary-card strong { display: block; font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; margin-bottom: 14px; }
+.summary-list { display: grid; gap: 10px; margin: 0; padding-left: 18px; color: #334155; line-height: 1.6; }
 .entry-list { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
 .entry-link, .entry-static { display: grid; gap: 6px; padding: 16px; border-radius: 20px; background: #f8fafc; color: inherit; text-decoration: none; }
 .entry-link:hover { transform: translateY(-1px); }

@@ -15,7 +15,12 @@
   "scripts": {
     "start": "turbo run start --filter=server",
     "dev": "turbo run dev --parallel",
-    "lint": "turbo run lint --parallel"
+    "lint": "turbo run lint --parallel",
+    "test:unit": "npm --workspace client run test:unit -- --run",
+    "build:client": "npm --workspace client run build",
+    "test:e2e": "npm --workspace client run test:e2e -- --project=chromium",
+    "check": "npm run lint && npm run test:unit && npm run build:client",
+    "ci": "npm run check && npm run test:e2e"
   },
   "dependencies": {
     "turbo": "^2.8.14"

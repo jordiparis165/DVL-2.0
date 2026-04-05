@@ -567,11 +567,42 @@ export const demoGradesView = {
   },
 }
 
+function buildCourseQuickSummary(course, relatedEntries, relatedAnnouncements) {
+  const progressTone = course.progress >= 70
+    ? 'Tu es en avance sur ce module.'
+    : course.progress >= 40
+      ? 'Le module est sous controle, mais il faut garder le rythme.'
+      : 'Le module demande une relance rapide cette semaine.'
+
+  const priorityTone = course.urgent
+    ? `Point chaud: ${course.deliverable}.`
+    : `Priorite actuelle: ${course.deliverable}.`
+
+  const sessionTone = relatedEntries[0]
+    ? `Prochaine seance: ${relatedEntries[0].time} en ${relatedEntries[0].detail}.`
+    : 'Aucune seance planifiee a court terme pour l instant.'
+
+  const alertTone = relatedAnnouncements[0]
+    ? `A surveiller: ${relatedAnnouncements[0].title}.`
+    : 'Aucune alerte specifique remontee pour ce cours.'
+
+  return {
+    headline: `${course.title} en 30 secondes`,
+    bullets: [
+      progressTone,
+      priorityTone,
+      sessionTone,
+      alertTone,
+    ],
+  }
+}
+
 export const demoCourseDetails = Object.fromEntries(demoCourses.map(course => [
   course.code,
   {
     student: demoStudent,
     course,
+    quickSummary: null,
     relatedEntries: [],
     relatedAnnouncements: [],
   },
@@ -674,6 +705,11 @@ for (const [courseCode, relations] of Object.entries(demoCourseRelations)) {
     )
     demoCourseDetails[courseCode].relatedAnnouncements = demoAnnouncements.filter(item =>
       relations.announcementSlugs.includes(item.slug),
+    )
+    demoCourseDetails[courseCode].quickSummary = buildCourseQuickSummary(
+      demoCourseDetails[courseCode].course,
+      demoCourseDetails[courseCode].relatedEntries,
+      demoCourseDetails[courseCode].relatedAnnouncements,
     )
   }
 }

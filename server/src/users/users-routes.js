@@ -41,7 +41,7 @@ function usersRoutes(app) {
   })
 
   app.get('', {
-    onRequest: [app.authenticate],
+    onRequest: [app.authenticate, app.authorizeAdmin],
   }, async (_request, reply) => {
     const users = await User.find({})
       .select(publicUserFields)
@@ -52,7 +52,7 @@ function usersRoutes(app) {
   })
 
   app.get('/:id', {
-    onRequest: [app.authenticate],
+    onRequest: [app.authenticate, app.authorizeAdmin],
   }, async (request, reply) => {
     const { id } = request.params
     const user = await User.findById(id)
@@ -67,7 +67,7 @@ function usersRoutes(app) {
   })
 
   app.delete('/:id', {
-    onRequest: [app.authenticate],
+    onRequest: [app.authenticate, app.authorizeAdmin],
   }, async (request, reply) => {
     const { id } = request.params
     const deletedUser = await User.findByIdAndDelete(id)

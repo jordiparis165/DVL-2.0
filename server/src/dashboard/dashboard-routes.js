@@ -152,14 +152,14 @@ function dashboardRoutes(app) {
   })
 
   app.get('/admin', {
-    onRequest: [app.authenticate],
+    onRequest: [app.authenticate, app.authorizeAdmin],
   }, async (request, reply) => {
     const payload = await getAdminViewData(request.currentUser)
     return reply.send(payload)
   })
 
   app.post('/admin/:resource', {
-    onRequest: [app.authenticate],
+    onRequest: [app.authenticate, app.authorizeAdmin],
   }, async (request, reply) => {
     const { resource } = request.params
 
@@ -176,7 +176,7 @@ function dashboardRoutes(app) {
   })
 
   app.patch('/admin/:resource/:id', {
-    onRequest: [app.authenticate],
+    onRequest: [app.authenticate, app.authorizeAdmin],
   }, async (request, reply) => {
     const { id, resource } = request.params
 

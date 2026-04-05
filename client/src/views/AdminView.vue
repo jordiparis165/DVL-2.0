@@ -111,9 +111,11 @@ const {
   loading,
   openDemo,
 } = useProtectedResource({
+  forbiddenRedirect: '/forbidden',
   loader: fetchAdminView,
   demoData: demoAdminView,
   demoRoute: '/admin',
+  requiredRole: 'admin',
 })
 
 const payload = computed(() => data.value ?? demoAdminView)

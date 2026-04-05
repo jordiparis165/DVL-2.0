@@ -4,6 +4,14 @@ export default {
   port: process.env.PORT || 3000,
   env: process.env.NODE_ENV || 'development',
   mongoUri: process.env.MONGODB_URI || 'mongodb://localhost:35115/myapp',
+  mongo: {
+    connectTimeoutMs: Number(process.env.MONGO_CONNECT_TIMEOUT_MS || 5000),
+    fallbackToMemory: process.env.MONGO_FALLBACK_TO_MEMORY !== 'false',
+    memoryServerVersion: process.env.MONGO_MEMORY_SERVER_VERSION || '7.0.14',
+  },
+  fastify: {
+    pluginTimeoutMs: Number(process.env.FASTIFY_PLUGIN_TIMEOUT_MS || 10 * 60 * 1000),
+  },
   appBaseUrl: process.env.APP_BASE_URL || `http://localhost:${process.env.PORT || 3000}`,
   frontBaseUrl: process.env.FRONT_BASE_URL || 'http://localhost:5173',
   jwt: {
@@ -12,6 +20,8 @@ export default {
   },
   security: {
     bcryptSaltRounds: Number(process.env.BCRYPT_SALT_ROUNDS || 12),
+    loginMaxAttempts: Number(process.env.LOGIN_MAX_ATTEMPTS || 5),
+    loginWindowMs: Number(process.env.LOGIN_WINDOW_MS || 15 * 60 * 1000),
   },
   mail: {
     host: process.env.SMTP_HOST,

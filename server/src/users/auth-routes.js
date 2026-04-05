@@ -12,6 +12,7 @@ const lowercaseRegex = /[a-z]/
 const uppercaseRegex = /[A-Z]/
 const digitRegex = /\d/
 const specialCharacterRegex = /[^a-z0-9]/i
+const loginAttempts = new Map()
 
 function getPasswordValidationError(password) {
   if (typeof password !== 'string' || password.length < passwordMinLength) {
@@ -73,6 +74,65 @@ async function getPublicUser(userId) {
     .lean()
 }
 
+function getLoginRateLimitKey(email, ip) {
+  return `${email}:${ip}`
+}
+
+function pruneLoginAttempts(now) {
+  for (const [key, value] of loginAttempts.entries()) {
+    if (value.expiresAt <= now) {
+      loginAttempts.delete(key)
+    }
+  }
+}
+
+function getRetryAfterSeconds(now, record) {
+  return Math.max(1, Math.ceil((record.expiresAt - now) / 1000))
+}
+
+function isLoginBlocked(key) {
+  const now = Date.now()
+  pruneLoginAttempts(now)
+
+  const record = loginAttempts.get(key)
+
+  if (!record) {
+    return null
+  }
+
+  if (record.attempts < config.security.loginMaxAttempts) {
+    return null
+  }
+
+  return getRetryAfterSeconds(now, record)
+}
+
+function recordFailedLogin(key) {
+  const now = Date.now()
+  pruneLoginAttempts(now)
+
+  const current = loginAttempts.get(key)
+
+  if (!current || current.expiresAt <= now) {
+    loginAttempts.set(key, {
+      attempts: 1,
+      expiresAt: now + config.security.loginWindowMs,
+    })
+    return
+  }
+
+  current.attempts += 1
+}
+
+function clearFailedLogins(key) {
+  loginAttempts.delete(key)
+}
+
+async function resolveUserRole() {
+  const adminExists = await User.exists({ role: 'admin' })
+  return adminExists ? 'student' : 'admin'
+}
+
 /**
  *
  * @param {import('fastify').FastifyInstance} app
@@ -119,11 +179,13 @@ function authRoutes(app) {
 
     const passwordHash = await hashPassword(password)
     const validationToken = randomBytes(32).toString('hex')
+    const role = await resolveUserRole()
 
     const user = await User.create({
       email: normalizedEmail,
       username: normalizedUsername,
       passwordHash,
+      role,
       validationToken,
     })
 
@@ -203,18 +265,32 @@ function authRoutes(app) {
     }
 
     const normalizedEmail = email.trim().toLowerCase()
+    const rateLimitKey = getLoginRateLimitKey(normalizedEmail, request.ip)
+    const retryAfterSeconds = isLoginBlocked(rateLimitKey)
+
+    if (retryAfterSeconds) {
+      reply.header('Retry-After', retryAfterSeconds)
+      return reply.status(429).send({
+        error: `Trop de tentatives de connexion. Reessayez dans ${retryAfterSeconds} secondes.`,
+      })
+    }
+
     const user = await User.findOne({ email: normalizedEmail })
       .select('+passwordHash')
 
     if (!user) {
+      recordFailedLogin(rateLimitKey)
       return reply.status(401).send({ error: 'Identifiants invalides' })
     }
 
     const passwordMatches = await verifyPassword(password, user.passwordHash)
 
     if (!passwordMatches) {
+      recordFailedLogin(rateLimitKey)
       return reply.status(401).send({ error: 'Identifiants invalides' })
     }
+
+    clearFailedLogins(rateLimitKey)
 
     if (needsPasswordRehash(user.passwordHash)) {
       user.passwordHash = await hashPassword(password)
@@ -230,6 +306,7 @@ function authRoutes(app) {
     const token = await reply.jwtSign({
       sub: user._id.toString(),
       email: user.email,
+      role: user.role,
       username: user.username,
     }, {
       expiresIn: '300s',
