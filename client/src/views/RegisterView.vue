@@ -2,6 +2,7 @@
 import { reactive, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 
+import SchoolLockup from '../components/SchoolLockup.vue'
 import { registerUser, resendVerificationEmail } from '../services/auth.js'
 
 const form = reactive({
@@ -57,6 +58,10 @@ async function resendVerification() {
 <template>
   <main class="register-shell">
     <section class="intro-card">
+      <div class="brand-block">
+        <SchoolLockup />
+      </div>
+
       <p class="eyebrow">
         Nouvelle inscription
       </p>
@@ -192,6 +197,13 @@ async function resendVerification() {
 
 .intro-card {
   padding: 36px;
+}
+
+.brand-block {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
 }
 
 .eyebrow {

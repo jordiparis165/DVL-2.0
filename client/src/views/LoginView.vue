@@ -2,6 +2,7 @@
 import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+import SchoolLockup from '../components/SchoolLockup.vue'
 import { useAuthStore } from '../stores/auth.js'
 
 const auth = useAuthStore()
@@ -50,15 +51,7 @@ async function submitLogin() {
   <main class="login-shell">
     <section class="brand-column">
       <div class="brand-block">
-        <div class="brand-mark">
-          DV
-        </div>
-        <div>
-          <p class="eyebrow">
-            Campus platform
-          </p>
-          <strong class="brand-name">DVL Next</strong>
-        </div>
+        <SchoolLockup />
       </div>
 
       <div class="hero-card">
@@ -159,19 +152,6 @@ async function submitLogin() {
   margin-bottom: 20px;
 }
 
-.brand-mark {
-  display: grid;
-  place-items: center;
-  width: 56px;
-  height: 56px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, #111827, #374151);
-  color: #f8fafc;
-  font-family: 'Space Grotesk', sans-serif;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-}
-
 .eyebrow {
   margin: 0 0 6px;
   color: #92400e;
@@ -179,10 +159,6 @@ async function submitLogin() {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-}
-
-.brand-name {
-  font-size: 1.1rem;
 }
 
 .hero-card,

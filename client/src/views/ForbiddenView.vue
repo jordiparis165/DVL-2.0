@@ -1,6 +1,14 @@
+<script setup>
+import SchoolLockup from '../components/SchoolLockup.vue'
+</script>
+
 <template>
   <main class="forbidden-shell">
     <section class="forbidden-card">
+      <div class="brand-block">
+        <SchoolLockup />
+      </div>
+
       <p class="eyebrow">
         Acces refuse
       </p>
@@ -40,6 +48,13 @@
     radial-gradient(circle at top left, rgba(245, 158, 11, 0.18), transparent 30%),
     rgba(255, 255, 255, 0.88);
   box-shadow: 0 28px 64px rgba(148, 163, 184, 0.18);
+}
+
+.brand-block {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
 }
 
 .eyebrow {

@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
+import SchoolLockup from '../components/SchoolLockup.vue'
 import { verifyEmailToken } from '../services/auth.js'
 
 const route = useRoute()
@@ -42,6 +43,10 @@ onMounted(runVerification)
 <template>
   <main class="verify-shell">
     <section class="verify-card">
+      <div class="brand-block">
+        <SchoolLockup />
+      </div>
+
       <p class="eyebrow">
         Verification email
       </p>
@@ -101,6 +106,13 @@ onMounted(runVerification)
   border-radius: 32px;
   background: rgba(255, 255, 255, 0.84);
   box-shadow: 0 28px 64px rgba(148, 163, 184, 0.18);
+}
+
+.brand-block {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
 }
 
 .eyebrow {

@@ -23,7 +23,10 @@ const payload = computed(() => data.value ?? demoCalendarView)
 
 const hourStart = 8
 const hourEnd = 19
-const rowHeight = 58
+const rowHeight = 60
+const headerHeight = 86
+const timeColumnWidth = 108
+const dayColumnMinWidth = 208
 const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam']
 const dayOrderByLabel = {
   Lun: 1,
@@ -130,8 +133,9 @@ const timeSlots = computed(() =>
   Array.from({ length: hourEnd - hourStart + 1 }, (_, index) => `${String(hourStart + index).padStart(2, '0')}:00`),
 )
 
-const boardColumns = computed(() => `96px repeat(${Math.max(weekDays.value.length, 1)}, minmax(190px, 1fr))`)
-const boardRows = computed(() => `68px repeat(${(hourEnd - hourStart + 1) * 2}, ${rowHeight / 2}px)`)
+const boardColumns = computed(() => `${timeColumnWidth}px repeat(${Math.max(weekDays.value.length, 1)}, minmax(${dayColumnMinWidth}px, 1fr))`)
+const boardRows = computed(() => `${headerHeight}px repeat(${(hourEnd - hourStart + 1) * 2}, ${rowHeight / 2}px)`)
+const boardMinWidth = computed(() => `${timeColumnWidth + (Math.max(weekDays.value.length, 1) * dayColumnMinWidth)}px`)
 
 const nextEntries = computed(() => hydratedEntries.value.slice(0, 5))
 const upcomingEntry = computed(() => hydratedEntries.value[0] ?? null)
@@ -288,7 +292,7 @@ function dayThemeClass(dayIndex) {
           <div class="calendar-board-wrap">
             <div
               class="calendar-board"
-              :style="{ gridTemplateColumns: boardColumns, gridTemplateRows: boardRows }"
+              :style="{ gridTemplateColumns: boardColumns, gridTemplateRows: boardRows, minWidth: boardMinWidth }"
             >
               <div class="board-corner">
                 UTC+2
@@ -402,6 +406,9 @@ function dayThemeClass(dayIndex) {
 .shell {
   min-height: 100vh;
   padding: 24px;
+  background:
+    radial-gradient(circle at top left, rgba(248, 250, 252, 0.92), rgba(241, 245, 249, 0.66)),
+    linear-gradient(180deg, #f8fafc, #eef2ff 58%, #f8fafc);
 }
 
 .hero,
@@ -413,7 +420,7 @@ function dayThemeClass(dayIndex) {
 .hero {
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
-  gap: 20px;
+  gap: 22px;
   padding: 24px 0 20px;
 }
 
@@ -443,6 +450,7 @@ function dayThemeClass(dayIndex) {
 .hero-panel {
   display: grid;
   gap: 24px;
+  min-height: 100%;
 }
 
 .hero-copy-block h1,
@@ -565,10 +573,14 @@ function dayThemeClass(dayIndex) {
 .stat-grid {
   display: grid;
   gap: 16px;
+  grid-auto-rows: 1fr;
 }
 
 .stat-card {
+  display: grid;
+  align-content: start;
   padding: 22px;
+  min-height: 0;
 }
 
 .stat-card strong {
@@ -589,7 +601,7 @@ function dayThemeClass(dayIndex) {
 .content-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.7fr) minmax(320px, 0.72fr);
-  gap: 20px;
+  gap: 22px;
 }
 
 .calendar-panel,
@@ -614,6 +626,7 @@ function dayThemeClass(dayIndex) {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  align-items: stretch;
 }
 
 .legend-chip {
@@ -624,6 +637,7 @@ function dayThemeClass(dayIndex) {
   border-radius: 999px;
   background: #f8fafc;
   box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.18);
+  min-height: 48px;
 }
 
 .legend-chip strong {
@@ -644,12 +658,12 @@ function dayThemeClass(dayIndex) {
 .calendar-board-wrap {
   overflow-x: auto;
   padding-bottom: 6px;
+  border-radius: 30px;
 }
 
 .calendar-board {
   position: relative;
   display: grid;
-  min-width: 1080px;
   border-radius: 30px;
   background:
     linear-gradient(180deg, rgba(246, 248, 252, 0.98), rgba(238, 243, 250, 0.98));
@@ -672,6 +686,7 @@ function dayThemeClass(dayIndex) {
   place-items: center;
   grid-column: 1;
   grid-row: 1;
+  padding: 14px 12px;
   font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -682,42 +697,45 @@ function dayThemeClass(dayIndex) {
 }
 
 .day-column-wash {
-  margin: 0 8px 8px;
-  border-radius: 24px;
-  opacity: 0.5;
+  margin: 10px 10px 12px;
+  border-radius: 26px;
+  opacity: 0.42;
   pointer-events: none;
 }
 
 .day-header {
   display: grid;
   align-content: center;
-  gap: 2px;
-  padding: 14px 16px;
+  gap: 4px;
+  padding: 14px 18px;
   border-bottom: 1px solid rgba(148, 163, 184, 0.14);
   border-left: 1px solid rgba(148, 163, 184, 0.08);
   background: rgba(255, 255, 255, 0.72);
+  min-height: 100%;
 }
 
 .day-header strong {
-  font-size: 1.5rem;
-  line-height: 1;
+  font-size: 1.38rem;
+  line-height: 1.05;
 }
 
 .day-header span {
-  font-size: 1rem;
+  font-size: 0.96rem;
 }
 
 .day-header-count {
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-weight: 700;
+  font-size: 0.72rem;
 }
 
 .time-label {
   display: grid;
   place-items: start end;
-  padding: 8px 16px 0 0;
-  font-size: 0.84rem;
+  padding: 9px 16px 0 0;
+  font-size: 0.82rem;
+  font-weight: 700;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.7));
   border-top: 1px solid rgba(148, 163, 184, 0.1);
 }
@@ -732,12 +750,14 @@ function dayThemeClass(dayIndex) {
 
 .calendar-event {
   display: grid;
-  gap: 8px;
-  margin: 8px;
-  padding: 14px 16px;
+  align-content: start;
+  gap: 9px;
+  margin: 10px 9px;
+  padding: 15px 16px;
   border-radius: 22px;
   color: #0f172a;
   text-decoration: none;
+  overflow: hidden;
   box-shadow:
     0 12px 28px rgba(15, 23, 42, 0.09),
     inset 0 0 0 1px rgba(255, 255, 255, 0.5);
@@ -752,11 +772,16 @@ function dayThemeClass(dayIndex) {
 
 .calendar-event small {
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .calendar-event strong {
   font-size: 1.05rem;
   line-height: 1.15;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .calendar-event span {
@@ -764,7 +789,15 @@ function dayThemeClass(dayIndex) {
   line-height: 1.45;
 }
 
+.calendar-event > span:not(.event-duration) {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
 .event-duration {
+  flex-shrink: 0;
   padding: 5px 8px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.62);
@@ -841,6 +874,7 @@ function dayThemeClass(dayIndex) {
 
 .sidebar-stack {
   align-content: start;
+  grid-auto-rows: min-content;
 }
 
 .side-panel {
@@ -862,6 +896,7 @@ function dayThemeClass(dayIndex) {
   border-radius: 22px;
   background: #f8fafc;
   box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.14);
+  overflow: hidden;
 }
 
 .agenda-link,
@@ -874,7 +909,7 @@ function dayThemeClass(dayIndex) {
 }
 
 .agenda-link {
-  grid-template-columns: 92px 1fr;
+  grid-template-columns: 96px 1fr;
   align-items: start;
 }
 
@@ -885,6 +920,22 @@ function dayThemeClass(dayIndex) {
 
 .agenda-link strong:first-child {
   color: #111827;
+  font-size: 0.94rem;
+  line-height: 1.35;
+}
+
+.agenda-link div {
+  display: grid;
+  gap: 4px;
+}
+
+.agenda-link p {
+  line-height: 1.35;
+}
+
+.announcement-link {
+  align-content: start;
+  min-height: 136px;
 }
 
 .announcement-pill {

@@ -2,6 +2,8 @@
 import { computed } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 
+import SchoolLockup from './SchoolLockup.vue'
+
 const props = defineProps({
   student: {
     type: Object,
@@ -52,15 +54,7 @@ function profileLocation() {
 <template>
   <header class="topbar">
     <div class="brand-block">
-      <div class="brand-mark">
-        DV
-      </div>
-      <div>
-        <p class="eyebrow">
-          Campus platform
-        </p>
-        <strong class="brand-name">DVL Next</strong>
-      </div>
+      <SchoolLockup compact />
     </div>
 
     <nav class="nav-links" aria-label="Navigation principale">
@@ -121,32 +115,6 @@ function profileLocation() {
 
 .brand-block {
   gap: 14px;
-}
-
-.brand-mark {
-  display: grid;
-  place-items: center;
-  width: 52px;
-  height: 52px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, #111827, #374151);
-  color: #f8fafc;
-  font-family: 'Space Grotesk', sans-serif;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-}
-
-.eyebrow {
-  margin: 0 0 6px;
-  color: #92400e;
-  font-size: 0.76rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.brand-name {
-  font-size: 1.1rem;
 }
 
 .nav-links {
